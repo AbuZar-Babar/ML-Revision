@@ -1,0 +1,6 @@
+{
+  "name": "ML Studio Lab",
+  "description": "Interactive 7-stage machine learning teaching and simulation platform for undergraduate courses, featuring live-linked equations, overfitting demos, Socratic visual proofs, and classic Python lab assignments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
