@@ -409,11 +409,14 @@ export default function Stage3Taxonomy() {
                   return (
                     <g
                       key={`cent-${c.cluster}`}
-                      className="transition-all duration-500"
+                      style={{
+                        transform: `translate(${cx}px, ${cy}px)`,
+                        transition: 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)',
+                      }}
                     >
                       <circle
-                        cx={cx}
-                        cy={cy}
+                        cx={0}
+                        cy={0}
                         r={11}
                         fill={CLUSTER_COLORS[c.cluster]}
                         fillOpacity={0.2}
@@ -421,18 +424,18 @@ export default function Stage3Taxonomy() {
                         strokeWidth="2.5"
                       />
                       <line
-                        x1={cx - 5}
-                        y1={cy}
-                        x2={cx + 5}
-                        y2={cy}
+                        x1={-5}
+                        y1={0}
+                        x2={5}
+                        y2={0}
                         stroke={CLUSTER_COLORS[c.cluster]}
                         strokeWidth="2.5"
                       />
                       <line
-                        x1={cx}
-                        y1={cy - 5}
-                        x2={cx}
-                        y2={cy + 5}
+                        x1={0}
+                        y1={-5}
+                        x2={0}
+                        y2={5}
                         stroke={CLUSTER_COLORS[c.cluster]}
                         strokeWidth="2.5"
                       />

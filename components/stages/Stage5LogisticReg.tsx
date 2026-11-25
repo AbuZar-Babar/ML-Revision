@@ -431,7 +431,7 @@ export default function Stage5LogisticReg() {
 
               {/* Active Decision Boundary Vertical Drop */}
               {activeBoundaryX >= 0 && activeBoundaryX <= 52 && (
-                <g>
+                <g className="transition-all duration-200 ease-out">
                   <line
                     x1={toX(activeBoundaryX)}
                     y1={toY(1.1)}
@@ -440,6 +440,7 @@ export default function Stage5LogisticReg() {
                     stroke={modelType === 'linear' ? '#DC2626' : '#059669'}
                     strokeWidth={highlightKey === 'boundary' ? 3 : 2}
                     strokeDasharray="4 3"
+                    className="transition-all duration-200 ease-out"
                   />
                   <text
                     x={toX(activeBoundaryX) + 6}
@@ -470,6 +471,7 @@ export default function Stage5LogisticReg() {
                   }
                   strokeDasharray={modelType === 'linear' ? undefined : '6 4'}
                   opacity={modelType === 'linear' ? 1 : 0.6}
+                  className="transition-all duration-150 ease-out"
                 />
               )}
 
@@ -485,6 +487,7 @@ export default function Stage5LogisticReg() {
                       : 1.75
                   }
                   opacity={modelType === 'sigmoid' ? 1 : 0.55}
+                  className="transition-all duration-200 ease-out"
                 />
               )}
 

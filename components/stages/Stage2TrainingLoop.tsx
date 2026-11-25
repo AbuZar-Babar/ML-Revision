@@ -255,6 +255,7 @@ export default function Stage2TrainingLoop() {
                         stroke="#DC2626"
                         strokeWidth={highlightKey === 'residuals' ? 3.5 : 2.2}
                         opacity={highlightKey === 'residuals' ? 1 : 0.85}
+                        className="transition-all duration-100 ease-out"
                       />
                       <text
                         x={toX(p.x) + 6}
@@ -305,6 +306,7 @@ export default function Stage2TrainingLoop() {
                   y2={toY(w * 8 + b)}
                   stroke="#0284C7"
                   strokeWidth={highlightKey === 'slope' ? 4 : 3}
+                  className="transition-all duration-100 ease-out"
                 />
 
                 {/* Y-Intercept Highlight Marker */}
@@ -315,6 +317,7 @@ export default function Stage2TrainingLoop() {
                   fill="#D97706"
                   stroke="#ffffff"
                   strokeWidth="2"
+                  className="transition-all duration-100 ease-out"
                 />
 
                 {/* 5 Scatter Data Points */}

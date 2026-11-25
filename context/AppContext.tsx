@@ -10,18 +10,31 @@ import React, {
 } from 'react';
 
 export type AppView = 'overview' | 'stage' | 'labs' | 'guide';
-export type StageStep = 'concept' | 'visual';
+export type StageSection = 'idea' | 'formula' | 'example' | 'lab';
 export type ThemeMode = 'light' | 'dark';
+
+export const STAGE_SECTIONS: { id: StageSection; num: string; label: string }[] =
+  [
+    { id: 'idea', num: '01', label: 'Idea' },
+    { id: 'formula', num: '02', label: 'Formula' },
+    { id: 'example', num: '03', label: 'Example' },
+    { id: 'lab', num: '04', label: 'Lab' },
+  ];
 
 interface AppContextValue {
   view: AppView;
   setView: (view: AppView) => void;
   activeStageId: number;
-  stageStep: StageStep;
-  setStageStep: (step: StageStep) => void;
-  openStage: (stageId: number, initialStep?: StageStep) => void;
+  activeSection: StageSection;
+  setActiveSection: (section: StageSection) => void;
+  nextSection: () => void;
+  prevSection: () => void;
+  openStage: (stageId: number, initialSection?: StageSection) => void;
   nextStage: () => void;
   prevStage: () => void;
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleSidebar: () => void;
   theme: ThemeMode;
   toggleTheme: () => void;
   teacherDrawerOpen: boolean;
@@ -39,7 +52,8 @@ const AppContext = createContext<AppContextValue | null>(null);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [view, setView] = useState<AppView>('overview');
   const [activeStageId, setActiveStageId] = useState<number>(1);
-  const [stageStep, setStageStep] = useState<StageStep>('concept');
+  const [activeSection, setActiveSection] = useState<StageSection>('idea');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [theme, setTheme] = useState<ThemeMode>('light');
   const [teacherDrawerOpen, setTeacherDrawerOpen] = useState<boolean>(false);
   const [cheatSheetOpen, setCheatSheetOpen] = useState<boolean>(false);
@@ -80,12 +94,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   }, []);
 
-  // Always opens Step 1 (Concept & Formulas) by default when entering a stage
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed((prev) => !prev);
+  }, []);
+
+  // Always opens Section 01 (Idea) by default when entering a stage
   const openStage = useCallback(
-    (stageId: number, initialStep: StageStep = 'concept') => {
+    (stageId: number, initialSection: StageSection = 'idea') => {
       const clamped = Math.max(1, Math.min(7, stageId));
       setActiveStageId(clamped);
-      setStageStep(initialStep);
+      setActiveSection(initialSection);
       setView('stage');
     },
     []
@@ -97,7 +115,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setView('labs');
         return 7;
       }
-      setStageStep('concept');
+      setActiveSection('idea');
       return prev + 1;
     });
   }, []);
@@ -105,8 +123,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const prevStage = useCallback(() => {
     setActiveStageId((prev) => {
       const next = Math.max(1, prev - 1);
-      setStageStep('concept');
+      setActiveSection('idea');
       return next;
+    });
+  }, []);
+
+  const nextSection = useCallback(() => {
+    setActiveSection((prev) => {
+      const idx = STAGE_SECTIONS.findIndex((s) => s.id === prev);
+      if (idx < STAGE_SECTIONS.length - 1) {
+        return STAGE_SECTIONS[idx + 1].id;
+      }
+      return prev;
+    });
+  }, []);
+
+  const prevSection = useCallback(() => {
+    setActiveSection((prev) => {
+      const idx = STAGE_SECTIONS.findIndex((s) => s.id === prev);
+      if (idx > 0) {
+        return STAGE_SECTIONS[idx - 1].id;
+      }
+      return prev;
     });
   }, []);
 
@@ -122,12 +160,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     (stageId: number, handler: () => void) => {
       proofHandlersRef.current.set(stageId, handler);
 
-      // If Teacher Mode triggered a visual proof while on Step 1 (Concept), run it cleanly now that Visual Lab mounted
+      // If Teacher Mode triggered a visual proof while on Idea/Formula/Example, run it cleanly now that Lab mounted
       if (pendingProofStageRef.current === stageId) {
         pendingProofStageRef.current = null;
         window.setTimeout(() => {
           handler();
-        }, 140);
+        }, 160);
       }
 
       return () => {
@@ -144,9 +182,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (fn) {
       fn();
     } else {
-      // Stage Visual Lab isn't mounted yet (user is on Concept & Formulas step): switch to Visual Lab & queue proof
+      // Visual Lab isn't mounted yet: jump straight to Section 04 (Lab) & queue the proof
       pendingProofStageRef.current = stageId;
-      setStageStep('visual');
+      setActiveSection('lab');
     }
   }, []);
 
@@ -156,11 +194,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         view,
         setView,
         activeStageId,
-        stageStep,
-        setStageStep,
+        activeSection,
+        setActiveSection,
+        nextSection,
+        prevSection,
         openStage,
         nextStage,
         prevStage,
+        sidebarCollapsed,
+        setSidebarCollapsed,
+        toggleSidebar,
         theme,
         toggleTheme,
         teacherDrawerOpen,
