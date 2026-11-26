@@ -16,7 +16,7 @@ interface ConceptPrimerProps {
 }
 
 export default function ConceptPrimer({ stageId }: ConceptPrimerProps) {
-  const { setStageStep, setCheatSheetOpen } = useApp();
+  const { setActiveSection, setCheatSheetOpen } = useApp();
   const [activeSymbol, setActiveSymbol] = useState<string | null>(null);
 
   const primer = STAGE_PRIMERS[stageId] ?? STAGE_PRIMERS[1];
@@ -230,7 +230,7 @@ export default function ConceptPrimer({ stageId }: ConceptPrimerProps) {
 
               <button
                 type="button"
-                onClick={() => setStageStep('visual')}
+                onClick={() => setActiveSection('lab')}
                 className="inline-flex items-center gap-2 rounded-lg bg-sky-700 dark:bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white dark:text-slate-950 hover:bg-sky-800 dark:hover:bg-sky-400 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600"
               >
                 Launch Interactive Visual
