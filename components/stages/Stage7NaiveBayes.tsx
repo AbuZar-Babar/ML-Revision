@@ -45,7 +45,7 @@ export default function Stage7NaiveBayes() {
 
   // Visual Proof from Teacher Drawer: Compose spam -> inject unseen word CRYPTO -> show 0% collapse -> toggle Laplace (+1)
   useEffect(() => {
-    return registerProofHandler(7, () => {
+    return registerProofHandler(10, () => {
       clearTimers();
       setLaplaceSmoothing(false);
       setSelectedWords(['WINNER', 'FREE']);

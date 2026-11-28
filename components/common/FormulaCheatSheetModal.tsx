@@ -12,7 +12,6 @@ export default function FormulaCheatSheetModal() {
     'notation'
   );
 
-  // Close cleanly on Escape key
   useEffect(() => {
     if (!cheatSheetOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -26,7 +25,7 @@ export default function FormulaCheatSheetModal() {
 
   const handleJumpStage = (stageId: number) => {
     setCheatSheetOpen(false);
-    openStage(stageId);
+    openStage(stageId, 'concept');
   };
 
   return (
@@ -59,9 +58,9 @@ export default function FormulaCheatSheetModal() {
             {/* Modal Header */}
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 px-6 py-4">
               <div className="space-y-0.5">
-                <div className="flex items-center gap-2 text-xs font-semibold text-sky-700 dark:text-sky-400">
+                <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 dark:text-blue-400">
                   <BookOpen className="h-3.5 w-3.5" />
-                  <span>Quick Reference · Accessible Anywhere</span>
+                  <span>Quick Reference · All 17 Chapters</span>
                 </div>
                 <h2
                   id="cheat-sheet-title"
@@ -72,7 +71,6 @@ export default function FormulaCheatSheetModal() {
               </div>
 
               <div className="flex items-center gap-3">
-                {/* Segmented Tab Switcher */}
                 <div
                   role="tablist"
                   aria-label="Cheat sheet sections"
@@ -85,7 +83,7 @@ export default function FormulaCheatSheetModal() {
                     onClick={() => setActiveTab('notation')}
                     className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                       activeTab === 'notation'
-                        ? 'bg-white dark:bg-slate-700 text-sky-700 dark:text-sky-300 shadow-xs font-semibold'
+                        ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs font-semibold'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                     }`}
                   >
@@ -98,11 +96,11 @@ export default function FormulaCheatSheetModal() {
                     onClick={() => setActiveTab('formulas')}
                     className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                       activeTab === 'formulas'
-                        ? 'bg-white dark:bg-slate-700 text-sky-700 dark:text-sky-300 shadow-xs font-semibold'
+                        ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs font-semibold'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                     }`}
                   >
-                    All 7 Stage Formulas
+                    All 17 Chapter Formulas
                   </button>
                 </div>
 
@@ -122,7 +120,7 @@ export default function FormulaCheatSheetModal() {
               {activeTab === 'notation' ? (
                 <div className="space-y-4">
                   <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Every equation in undergraduate Machine Learning builds on these eight core symbols. Master their plain-English roles here before diving into individual algorithms.
+                    Every equation across our 5-unit course builds on these core mathematical symbols.
                   </p>
 
                   <div className="grid gap-3.5 sm:grid-cols-2">
@@ -132,7 +130,7 @@ export default function FormulaCheatSheetModal() {
                         className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-4 space-y-2"
                       >
                         <div className="flex items-baseline justify-between gap-2">
-                          <span className="font-mono text-base font-bold text-sky-800 dark:text-sky-300 bg-sky-100/80 dark:bg-sky-900/50 px-2.5 py-0.5 rounded-md">
+                          <span className="font-mono text-base font-bold text-blue-800 dark:text-blue-300 bg-blue-100/80 dark:bg-blue-900/50 px-2.5 py-0.5 rounded-md">
                             {item.symbol}
                           </span>
                           <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 text-right">
@@ -152,7 +150,7 @@ export default function FormulaCheatSheetModal() {
               ) : (
                 <div className="space-y-4">
                   <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Exam-ready equation summary across all seven curriculum stages. Click any row&apos;s stage link to open its full Concept &amp; Formulas walkthrough.
+                    Exam-ready equation summary across all 17 chapters. Click any row to jump directly to its Concept &amp; Formula view.
                   </p>
 
                   <div className="divide-y divide-slate-200 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
@@ -163,7 +161,7 @@ export default function FormulaCheatSheetModal() {
                       >
                         <div className="space-y-1.5 flex-1 min-w-[260px]">
                           <div className="flex items-center gap-2 text-xs">
-                            <span className="font-mono font-semibold text-sky-700 dark:text-sky-400">
+                            <span className="font-mono font-semibold text-blue-700 dark:text-blue-400">
                               {row.stageLabel}
                             </span>
                             <span aria-hidden="true" className="text-slate-400">
@@ -184,7 +182,7 @@ export default function FormulaCheatSheetModal() {
                         <button
                           type="button"
                           onClick={() => handleJumpStage(row.stageId)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-950/50 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                          className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                         >
                           <Sigma className="h-3.5 w-3.5" />
                           Open {row.stageLabel}

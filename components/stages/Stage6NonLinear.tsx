@@ -49,7 +49,7 @@ export default function Stage6NonLinear() {
 
   // Visual Proof from Teacher Drawer: Show Linear failure on Two Moons, then k=1 overfit vs k=9 generalization
   useEffect(() => {
-    return registerProofHandler(6, () => {
+    return registerProofHandler(9, () => {
       clearTimers();
       setSubAlgo('knn');
       setShowTestSplit(true);

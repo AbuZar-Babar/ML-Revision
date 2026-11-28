@@ -1,241 +1,216 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import {
-  ArrowRight,
-  Code2,
-  GraduationCap,
-  Moon,
-  Sigma,
-  Sun,
-} from 'lucide-react';
-import { useApp } from '@/context/AppContext';
-import { CURRICULUM_STAGES } from '@/data/curriculum';
-
-const COURSE_UNITS = [
-  {
-    unitNumber: 'Unit 01',
-    title: 'Foundations of Learning',
-    description:
-      'Build intuition for how data-driven models replace rigid code, minimize loss step by step, and organize problems into three ML paradigms.',
-    stageIds: [1, 2, 3],
-  },
-  {
-    unitNumber: 'Unit 02',
-    title: 'Linear & Logistic Models',
-    description:
-      'Explore convex MSE loss bowls, gradient descent step sizes, extreme outlier breakdowns, and Sigmoid probability thresholds.',
-    stageIds: [4, 5],
-  },
-  {
-    unitNumber: 'Unit 03',
-    title: 'Non-Linear & Probabilistic Reasoning',
-    description:
-      'Solve curved boundaries with KNN voting and orthogonal Decision Trees, then weigh word probabilities with Naive Bayes and Laplace smoothing.',
-    stageIds: [6, 7],
-  },
-];
+import { ArrowRight, CheckCircle2, Moon, Sun } from 'lucide-react';
+import { TOTAL_CHAPTERS, useApp } from '@/context/AppContext';
+import { COURSE_UNITS, CURRICULUM_STAGES } from '@/data/curriculum';
+import InfoPopover from '@/components/common/InfoPopover';
 
 export default function OverviewPage() {
   const {
+    activeStageId,
+    completedChapters,
     openStage,
-    setView,
     theme,
     toggleTheme,
-    setTeacherDrawerOpen,
-    toggleCheatSheet,
   } = useApp();
 
-  const handleLaunchWithTeacher = (stageId: number) => {
-    setTeacherDrawerOpen(true);
-    openStage(stageId, 'idea');
-  };
+  const [selectedUnitId, setSelectedUnitId] = useState<number | 'all'>('all');
+
+  const padNum = (n: number) => String(n).padStart(2, '0');
+  const hasStarted = activeStageId > 1 || completedChapters.length > 0;
+  const visibleUnits =
+    selectedUnitId === 'all'
+      ? COURSE_UNITS
+      : COURSE_UNITS.filter((u) => u.id === selectedUnitId);
 
   return (
-    <main className="mx-auto max-w-[1200px] px-6 sm:px-8 py-12 sm:py-16 space-y-16">
-      {/* Spacious Academic Hero Section */}
-      <section className="space-y-6 pb-12 border-b border-slate-200 dark:border-slate-800">
-        <div className="space-y-4 max-w-3xl">
+    <main className="mx-auto max-w-[1200px] px-6 sm:px-8 py-12 sm:py-14 space-y-12">
+      {/* Clean, Uncluttered Academic Hero */}
+      <section className="flex flex-wrap items-end justify-between gap-6 pb-9 border-b border-slate-200 dark:border-slate-800">
+        <div className="space-y-3 max-w-2xl">
           <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
-            Undergraduate Machine Learning Curriculum <span aria-hidden="true">·</span> 4 Guided Sections per Topic <span aria-hidden="true">·</span> 5 Classic Lab Datasets
+            5 Units <span aria-hidden="true">·</span> {TOTAL_CHAPTERS} Interactive Chapters <span aria-hidden="true">·</span> Visuals &amp; Python Code
           </div>
           <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-100 leading-[1.12] [text-wrap:balance]">
-            Master Machine Learning Visually Before Writing Code
+            Learn Machine Learning Visually, Then Code It
           </h1>
-          <p className="text-base sm:text-lg leading-relaxed text-slate-600 dark:text-slate-300 max-w-2xl">
-            Every topic unfolds calmly across four dedicated sections—<strong>01. Idea</strong>, <strong>02. Formula</strong>, <strong>03. Interactive Example</strong>, and <strong>04. Visual Lab</strong>—so students master intuition and math without feeling overwhelmed.
+          <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">
+            From Supervised, Unsupervised, and Reinforcement Learning basics all the way through SVM, CNNs, and Transformers—each chapter follows one clean flow: Concept, Visual Lab, and Python Code.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 pt-2">
+        <div className="flex items-center gap-2.5 shrink-0">
           <button
             type="button"
-            onClick={() => openStage(1, 'idea')}
-            className="inline-flex items-center gap-2 rounded-lg bg-sky-700 dark:bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white dark:text-slate-950 hover:bg-sky-800 dark:hover:bg-sky-400 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600"
+            onClick={() => openStage(hasStarted ? activeStageId : 1, 'concept')}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-700 dark:bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white dark:text-slate-950 hover:bg-blue-800 dark:hover:bg-blue-400 transition-colors cursor-pointer"
           >
-            Start Lecture: Stage 01
+            {hasStarted
+              ? `Resume Chapter ${padNum(activeStageId)}`
+              : 'Start Chapter 01'}
             <ArrowRight className="h-4 w-4" />
           </button>
 
           <button
             type="button"
-            onClick={toggleCheatSheet}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-          >
-            <Sigma className="h-4 w-4 text-sky-700 dark:text-sky-400" />
-            Formula Cheat Sheet
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setView('labs')}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-          >
-            <Code2 className="h-4 w-4 text-sky-700 dark:text-sky-400" />
-            Lab Assignments
-          </button>
-
-          <button
-            type="button"
             onClick={toggleTheme}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Toggle Light or Dark theme"
+            className="inline-flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             {theme === 'light' ? (
-              <>
-                <Moon className="h-4 w-4" />
-                Dark Mode
-              </>
+              <Moon className="h-4 w-4" />
             ) : (
-              <>
-                <Sun className="h-4 w-4 text-amber-400" />
-                Projector Light
-              </>
+              <Sun className="h-4 w-4 text-amber-400" />
             )}
           </button>
         </div>
       </section>
 
-      {/* Spacious Grouped Course Units */}
-      <div className="space-y-14">
-        {COURSE_UNITS.map((unit, uIdx) => {
-          const unitStages = unit.stageIds
+      {/* Compact Unit Filter Strip + Progress */}
+      <section className="flex flex-wrap items-center justify-between gap-4">
+        <div
+          role="tablist"
+          aria-label="Filter roadmap by unit"
+          className="inline-flex items-center gap-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-900 p-1 overflow-x-auto max-w-full"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={selectedUnitId === 'all'}
+            onClick={() => setSelectedUnitId('all')}
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              selectedUnitId === 'all'
+                ? 'bg-white dark:bg-slate-800 text-blue-700 dark:text-blue-300 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            All 5 Units
+          </button>
+          {COURSE_UNITS.map((unit) => {
+            const active = selectedUnitId === unit.id;
+            return (
+              <button
+                key={unit.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setSelectedUnitId(unit.id)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  active
+                    ? 'bg-white dark:bg-slate-800 text-blue-700 dark:text-blue-300 font-semibold shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                }`}
+              >
+                {unit.numberLabel}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-mono tabular-nums font-semibold text-slate-700 dark:text-slate-300">
+            {completedChapters.length} / {TOTAL_CHAPTERS} completed
+          </span>
+          <div className="h-1.5 w-24 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-blue-700 dark:bg-blue-500 transition-[width] duration-300"
+              style={{
+                width: `${(completedChapters.length / TOTAL_CHAPTERS) * 100}%`,
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Clean Sequential 5-Unit, 17-Chapter Grid */}
+      <div className="space-y-12">
+        {visibleUnits.map((unit, uIdx) => {
+          const unitStages = unit.chapterIds
             .map((id) => CURRICULUM_STAGES.find((s) => s.id === id))
             .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
           return (
             <motion.section
-              key={unit.unitNumber}
-              initial={{ opacity: 0, y: 12 }}
+              key={unit.id}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, delay: uIdx * 0.08 }}
-              className="space-y-5"
+              transition={{ duration: 0.22, delay: uIdx * 0.04 }}
+              className="space-y-4"
             >
-              <div className="space-y-1 max-w-2xl">
-                <div className="font-mono text-xs font-semibold text-sky-700 dark:text-sky-400">
-                  {unit.unitNumber}
-                </div>
-                <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-semibold text-blue-700 dark:text-blue-400">
+                  {unit.numberLabel}
+                </span>
+                <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">
+                  ·
+                </span>
+                <h2 className="font-display text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                   {unit.title}
                 </h2>
-                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                  {unit.description}
-                </p>
+                <InfoPopover
+                  title={`${unit.numberLabel}: ${unit.title}`}
+                  content={unit.description}
+                  align="left"
+                />
               </div>
 
               <div
-                className={`grid gap-6 ${
-                  unitStages.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'
+                className={`grid gap-4 ${
+                  unitStages.length === 2
+                    ? 'md:grid-cols-2'
+                    : unitStages.length === 4
+                    ? 'md:grid-cols-2'
+                    : 'md:grid-cols-3'
                 }`}
               >
-                {unitStages.map((stage) => (
-                  <div
-                    key={stage.id}
-                    className="group flex flex-col justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 hover:border-sky-500 dark:hover:border-sky-400 transition-colors"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                        <span className="font-mono font-semibold text-sky-700 dark:text-sky-400">
-                          Stage 0{stage.id}
-                        </span>
-                        <span>{stage.category}</span>
-                      </div>
+                {unitStages.map((stage) => {
+                  const isDone = completedChapters.includes(stage.id);
+                  const isCurrent = stage.id === activeStageId;
 
-                      <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-sky-700 dark:group-hover:text-sky-400 transition-colors">
-                        {stage.title}
-                      </h3>
-
-                      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                        {stage.subtitle}
-                      </p>
-                    </div>
-
-                    <div className="mt-6 space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-                      <div className="font-mono text-[11px] text-slate-400 dark:text-slate-500">
-                        01. Idea · 02. Formula · 03. Example · 04. Lab
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2">
-                        <button
-                          type="button"
-                          onClick={() => openStage(stage.id, 'idea')}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-700 dark:text-sky-400 hover:underline cursor-pointer"
-                        >
-                          Start Stage 0{stage.id}
-                          <ArrowRight className="h-3.5 w-3.5" />
-                        </button>
-
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => openStage(stage.id, 'lab')}
-                            className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
-                          >
-                            Jump to Lab
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleLaunchWithTeacher(stage.id)}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
-                            title="Launch with Instructor Socratic Drawer open"
-                          >
-                            <GraduationCap className="h-3.5 w-3.5" />
-                            Teach
-                          </button>
+                  return (
+                    <button
+                      key={stage.id}
+                      type="button"
+                      onClick={() => openStage(stage.id, 'concept')}
+                      className={`group text-left flex flex-col justify-between rounded-2xl border bg-white dark:bg-slate-900 p-5 transition-colors cursor-pointer ${
+                        isCurrent
+                          ? 'border-blue-600/80 dark:border-blue-400/80'
+                          : 'border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500'
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2 text-xs">
+                          <span className="font-mono font-semibold text-blue-700 dark:text-blue-400">
+                            Ch. {padNum(stage.id)}
+                          </span>
+                          {isDone ? (
+                            <CheckCircle2
+                              className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0"
+                              aria-label="Completed"
+                            />
+                          ) : (
+                            <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors" />
+                          )}
                         </div>
+
+                        <h3 className="font-display text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors leading-snug">
+                          {stage.title}
+                        </h3>
+
+                        <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400 line-clamp-2">
+                          {stage.subtitle}
+                        </p>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </motion.section>
           );
         })}
       </div>
-
-      {/* Dedicated Lab Transition Callout */}
-      <section className="rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-7 sm:p-8 flex flex-wrap items-center justify-between gap-6">
-        <div className="space-y-2 max-w-2xl">
-          <div className="font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-            Hands-On Coding Transition
-          </div>
-          <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-slate-100">
-            Lab Assignments &amp; Classic University Datasets
-          </h2>
-          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-            Ready to code in Python? Inspect in-browser CSV tables for Hours vs. Marks, Exam Pass/Fail, Iris, Play Tennis, and SMS Spam, and download ready-to-run NumPy &amp; Scikit-learn starter scripts.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setView('labs')}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 dark:bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white dark:text-slate-950 hover:bg-emerald-800 dark:hover:bg-emerald-400 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-        >
-          Open Lab Hub
-          <ArrowRight className="h-4 w-4" />
-        </button>
-      </section>
     </main>
   );
 }

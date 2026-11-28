@@ -3,6 +3,20 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { RotateCcw } from 'lucide-react';
+import {
+  Stage3PrepIdeaSvg,
+  Stage5BiasVarIdeaSvg,
+  Stage7SVMIdeaSvg,
+  Stage10EnsembleIdeaSvg,
+  Stage12PCAIdeaSvg,
+  Stage13NeuralIdeaSvg,
+  Stage14BackpropIdeaSvg,
+} from '@/components/sections/IntuitionDiagramsNew';
+import {
+  Stage2ParadigmsIdeaSvg,
+  Stage16CNNIdeaSvg,
+  Stage17TransformerIdeaSvg,
+} from '@/components/sections/IntuitionDiagramsExtra';
 
 interface IntuitionDiagramProps {
   stageId: number;
@@ -29,12 +43,22 @@ export default function IntuitionDiagram({ stageId }: IntuitionDiagramProps) {
 
       <div key={`${stageId}-${replayNonce}`}>
         {stageId === 1 && <Stage1IdeaSvg />}
-        {stageId === 2 && <Stage2IdeaSvg />}
-        {stageId === 3 && <Stage3IdeaSvg />}
-        {stageId === 4 && <Stage4IdeaSvg />}
-        {stageId === 5 && <Stage5IdeaSvg />}
-        {stageId === 6 && <Stage6IdeaSvg />}
-        {stageId === 7 && <Stage7IdeaSvg />}
+        {stageId === 2 && <Stage2ParadigmsIdeaSvg />}
+        {stageId === 3 && <Stage2IdeaSvg />}
+        {stageId === 4 && <Stage3PrepIdeaSvg />}
+        {stageId === 5 && <Stage4IdeaSvg />}
+        {stageId === 6 && <Stage5BiasVarIdeaSvg />}
+        {stageId === 7 && <Stage5IdeaSvg />}
+        {stageId === 8 && <Stage7SVMIdeaSvg />}
+        {stageId === 9 && <Stage6IdeaSvg />}
+        {stageId === 10 && <Stage7IdeaSvg />}
+        {stageId === 11 && <Stage10EnsembleIdeaSvg />}
+        {stageId === 12 && <Stage3IdeaSvg />}
+        {stageId === 13 && <Stage12PCAIdeaSvg />}
+        {stageId === 14 && <Stage13NeuralIdeaSvg />}
+        {stageId === 15 && <Stage14BackpropIdeaSvg />}
+        {stageId === 16 && <Stage16CNNIdeaSvg />}
+        {stageId === 17 && <Stage17TransformerIdeaSvg />}
       </div>
     </div>
   );

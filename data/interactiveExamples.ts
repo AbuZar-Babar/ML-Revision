@@ -1,4 +1,5 @@
 import { computeEntropy, sigmoid } from '@/lib/ml-math';
+import { NEW_STAGE_INTERACTIVE_EXAMPLES } from '@/data/interactiveExamplesNew';
 
 export interface ExampleInputField {
   key: string;
@@ -43,7 +44,7 @@ export interface StageInteractiveExample {
   evaluate: (values: Record<string, number>) => ExampleEvaluation;
 }
 
-export const STAGE_INTERACTIVE_EXAMPLES: Record<number, StageInteractiveExample> =
+const BASE_INTERACTIVE_EXAMPLES: Record<number, StageInteractiveExample> =
   {
     1: {
       stageId: 1,
@@ -811,3 +812,20 @@ export const STAGE_INTERACTIVE_EXAMPLES: Record<number, StageInteractiveExample>
       },
     },
   };
+
+export const STAGE_INTERACTIVE_EXAMPLES: Record<number, StageInteractiveExample> = {
+  1: BASE_INTERACTIVE_EXAMPLES[1],
+  2: BASE_INTERACTIVE_EXAMPLES[2],
+  3: NEW_STAGE_INTERACTIVE_EXAMPLES[3],
+  4: BASE_INTERACTIVE_EXAMPLES[4],
+  5: NEW_STAGE_INTERACTIVE_EXAMPLES[5],
+  6: { ...BASE_INTERACTIVE_EXAMPLES[5], stageId: 6 },
+  7: NEW_STAGE_INTERACTIVE_EXAMPLES[7],
+  8: { ...BASE_INTERACTIVE_EXAMPLES[6], stageId: 8 },
+  9: { ...BASE_INTERACTIVE_EXAMPLES[7], stageId: 9 },
+  10: NEW_STAGE_INTERACTIVE_EXAMPLES[10],
+  11: { ...BASE_INTERACTIVE_EXAMPLES[3], stageId: 11 },
+  12: NEW_STAGE_INTERACTIVE_EXAMPLES[12],
+  13: NEW_STAGE_INTERACTIVE_EXAMPLES[13],
+  14: NEW_STAGE_INTERACTIVE_EXAMPLES[14],
+};

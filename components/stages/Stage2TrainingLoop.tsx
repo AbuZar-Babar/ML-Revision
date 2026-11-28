@@ -95,7 +95,7 @@ export default function Stage2TrainingLoop() {
 
   // Visual Proof from Teacher Drawer: scramble dials, then run gradient descent live
   useEffect(() => {
-    return registerProofHandler(2, () => {
+    return registerProofHandler(3, () => {
       stopAutoTrain();
       if (proofTimerRef.current !== null) {
         window.clearTimeout(proofTimerRef.current);

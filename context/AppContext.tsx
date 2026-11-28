@@ -9,16 +9,17 @@ import React, {
   useState,
 } from 'react';
 
-export type AppView = 'overview' | 'stage' | 'labs' | 'guide';
-export type StageSection = 'idea' | 'formula' | 'example' | 'lab';
+export type AppView = 'overview' | 'stage' | 'compare' | 'glossary' | 'labs';
+export type StageSection = 'concept' | 'lab' | 'code';
 export type ThemeMode = 'light' | 'dark';
+
+export const TOTAL_CHAPTERS = 17;
 
 export const STAGE_SECTIONS: { id: StageSection; num: string; label: string }[] =
   [
-    { id: 'idea', num: '01', label: 'Idea' },
-    { id: 'formula', num: '02', label: 'Formula' },
-    { id: 'example', num: '03', label: 'Example' },
-    { id: 'lab', num: '04', label: 'Lab' },
+    { id: 'concept', num: '01', label: 'Concept & Formula' },
+    { id: 'lab', num: '02', label: 'Visual Lab' },
+    { id: 'code', num: '03', label: 'Python Code' },
   ];
 
 interface AppContextValue {
@@ -32,6 +33,8 @@ interface AppContextValue {
   openStage: (stageId: number, initialSection?: StageSection) => void;
   nextStage: () => void;
   prevStage: () => void;
+  completedChapters: number[];
+  markChapterCompleted: (chapterId: number) => void;
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
   toggleSidebar: () => void;
@@ -49,10 +52,15 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+const THEME_STORAGE_KEY = 'ml-studio-lab-theme';
+const PROGRESS_STORAGE_KEY = 'ml-studio-lab-completed-v3';
+const LAST_CHAPTER_STORAGE_KEY = 'ml-studio-lab-last-chapter-v3';
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [view, setView] = useState<AppView>('overview');
   const [activeStageId, setActiveStageId] = useState<number>(1);
-  const [activeSection, setActiveSection] = useState<StageSection>('idea');
+  const [activeSection, setActiveSection] = useState<StageSection>('concept');
+  const [completedChapters, setCompletedChapters] = useState<number[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [theme, setTheme] = useState<ThemeMode>('light');
   const [teacherDrawerOpen, setTeacherDrawerOpen] = useState<boolean>(false);
@@ -61,13 +69,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const proofHandlersRef = useRef<Map<number, () => void>>(new Map());
   const pendingProofStageRef = useRef<number | null>(null);
 
-  // Restore saved theme asynchronously to avoid synchronous setState in effect
   useEffect(() => {
     const id = window.setTimeout(() => {
       try {
-        const saved = window.localStorage.getItem('ml-studio-lab-theme');
-        if (saved === 'dark' || saved === 'light') {
-          setTheme(saved);
+        const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+          setTheme(savedTheme);
+        }
+        const savedProgress = window.localStorage.getItem(PROGRESS_STORAGE_KEY);
+        if (savedProgress) {
+          const parsed = JSON.parse(savedProgress);
+          if (Array.isArray(parsed)) {
+            const valid = parsed.filter(
+              (n): n is number =>
+                typeof n === 'number' && n >= 1 && n <= TOTAL_CHAPTERS
+            );
+            setCompletedChapters(Array.from(new Set(valid)));
+          }
+        }
+        const savedChapter = window.localStorage.getItem(
+          LAST_CHAPTER_STORAGE_KEY
+        );
+        if (savedChapter) {
+          const ch = Number(savedChapter);
+          if (Number.isInteger(ch) && ch >= 1 && ch <= TOTAL_CHAPTERS) {
+            setActiveStageId(ch);
+          }
         }
       } catch {
         // ignore storage restrictions
@@ -84,7 +111,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       root.classList.remove('dark');
     }
     try {
-      window.localStorage.setItem('ml-studio-lab-theme', theme);
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
     } catch {
       // ignore
     }
@@ -98,32 +125,69 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setSidebarCollapsed((prev) => !prev);
   }, []);
 
-  // Always opens Section 01 (Idea) by default when entering a stage
+  const markChapterCompleted = useCallback((chapterId: number) => {
+    setCompletedChapters((prev) => {
+      if (prev.includes(chapterId)) return prev;
+      const next = [...prev, chapterId].sort((a, b) => a - b);
+      try {
+        window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
+
   const openStage = useCallback(
-    (stageId: number, initialSection: StageSection = 'idea') => {
-      const clamped = Math.max(1, Math.min(7, stageId));
+    (stageId: number, initialSection: StageSection = 'concept') => {
+      const clamped = Math.max(1, Math.min(TOTAL_CHAPTERS, stageId));
       setActiveStageId(clamped);
       setActiveSection(initialSection);
       setView('stage');
+      try {
+        window.localStorage.setItem(LAST_CHAPTER_STORAGE_KEY, String(clamped));
+      } catch {
+        // ignore
+      }
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     },
     []
   );
 
   const nextStage = useCallback(() => {
     setActiveStageId((prev) => {
-      if (prev >= 7) {
+      if (prev >= TOTAL_CHAPTERS) {
         setView('labs');
-        return 7;
+        return TOTAL_CHAPTERS;
       }
-      setActiveSection('idea');
-      return prev + 1;
+      const next = prev + 1;
+      setActiveSection('concept');
+      try {
+        window.localStorage.setItem(LAST_CHAPTER_STORAGE_KEY, String(next));
+      } catch {
+        // ignore
+      }
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return next;
     });
   }, []);
 
   const prevStage = useCallback(() => {
     setActiveStageId((prev) => {
       const next = Math.max(1, prev - 1);
-      setActiveSection('idea');
+      setActiveSection('concept');
+      try {
+        window.localStorage.setItem(LAST_CHAPTER_STORAGE_KEY, String(next));
+      } catch {
+        // ignore
+      }
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       return next;
     });
   }, []);
@@ -160,7 +224,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     (stageId: number, handler: () => void) => {
       proofHandlersRef.current.set(stageId, handler);
 
-      // If Teacher Mode triggered a visual proof while on Idea/Formula/Example, run it cleanly now that Lab mounted
       if (pendingProofStageRef.current === stageId) {
         pendingProofStageRef.current = null;
         window.setTimeout(() => {
@@ -182,7 +245,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (fn) {
       fn();
     } else {
-      // Visual Lab isn't mounted yet: jump straight to Section 04 (Lab) & queue the proof
       pendingProofStageRef.current = stageId;
       setActiveSection('lab');
     }
@@ -201,6 +263,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         openStage,
         nextStage,
         prevStage,
+        completedChapters,
+        markChapterCompleted,
         sidebarCollapsed,
         setSidebarCollapsed,
         toggleSidebar,

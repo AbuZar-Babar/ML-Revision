@@ -100,7 +100,7 @@ export default function Stage5LogisticReg() {
 
   // Visual Proof from Teacher Drawer: Switch to Linear, slide outlier to X=50, then activate Sigmoid
   useEffect(() => {
-    return registerProofHandler(5, () => {
+    return registerProofHandler(7, () => {
       clearTimers();
       setModelType('linear');
       setShowBothOverlay(true);

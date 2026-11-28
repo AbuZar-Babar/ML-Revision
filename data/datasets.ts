@@ -1,6 +1,7 @@
 export interface LabDataset {
   id: string;
   stageRef: string;
+  chapterId: number;
   title: string;
   algorithm: string;
   csvFilename: string;
@@ -14,7 +15,6 @@ export interface LabDataset {
   starterCode: string;
 }
 
-// 50 realistic student records: Study_Hours vs Exam_Score (hours_marks.csv)
 const HOURS_MARKS_ROWS: (string | number)[][] = [
   [1.1, 21], [1.3, 24], [1.5, 22], [1.8, 28], [2.0, 31],
   [2.2, 30], [2.5, 35], [2.7, 34], [2.9, 39], [3.0, 41],
@@ -34,6 +34,16 @@ const EXAM_PASS_ROWS: (string | number)[][] = [
   [3.2, 68, 0], [3.5, 65, 1], [3.8, 70, 0], [4.0, 74, 1], [4.2, 72, 1],
   [4.5, 76, 1], [4.8, 79, 1], [5.0, 81, 1], [5.4, 78, 1], [5.8, 84, 1],
   [6.2, 86, 1], [6.6, 89, 1], [7.0, 91, 1], [7.5, 94, 1], [8.2, 96, 1],
+];
+
+const TUMOR_SVM_ROWS: (string | number)[][] = [
+  [11.2, 14.1, 0.06, 0], [12.0, 15.6, 0.08, 0], [12.4, 13.8, 0.05, 0],
+  [11.8, 16.2, 0.09, 0], [13.0, 15.1, 0.10, 0], [12.7, 17.0, 0.07, 0],
+  [13.4, 16.4, 0.11, 0], [11.5, 14.9, 0.06, 0], [12.9, 14.5, 0.09, 0],
+  [13.8, 17.5, 0.12, 0], [17.9, 21.4, 0.24, 1], [18.6, 23.0, 0.27, 1],
+  [19.2, 22.1, 0.29, 1], [17.2, 20.8, 0.21, 1], [20.1, 24.3, 0.31, 1],
+  [18.1, 22.7, 0.25, 1], [16.9, 20.1, 0.19, 1], [19.8, 23.6, 0.28, 1],
+  [21.0, 25.1, 0.34, 1], [17.5, 21.9, 0.22, 1],
 ];
 
 const IRIS_ROWS: (string | number)[][] = [
@@ -94,10 +104,18 @@ const SMS_SPAM_ROWS: (string | number)[][] = [
   ['ham', 'I pushed the starter code to our shared project folder'],
 ];
 
+const XOR_NN_ROWS: (string | number)[][] = [
+  [0.04, 0.06, 0], [0.11, 0.08, 0], [0.02, 0.14, 0], [0.15, 0.05, 0],
+  [0.06, 0.94, 1], [0.12, 0.89, 1], [0.03, 0.97, 1], [0.16, 0.91, 1],
+  [0.95, 0.07, 1], [0.88, 0.11, 1], [0.97, 0.04, 1], [0.90, 0.15, 1],
+  [0.93, 0.95, 0], [0.89, 0.88, 0], [0.96, 0.91, 0], [0.85, 0.94, 0],
+];
+
 export const LAB_DATASETS: LabDataset[] = [
   {
     id: 'linear-regression',
-    stageRef: 'Stage 04',
+    stageRef: 'Chapter 05',
+    chapterId: 5,
     title: 'Lab 01: Linear Regression & Gradient Descent',
     algorithm: 'Linear Regression',
     csvFilename: 'hours_marks.csv',
@@ -123,7 +141,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
-# 1. Load dataset
 df = pd.read_csv("hours_marks.csv")
 X = df["Study_Hours"].values
 y = df["Exam_Score"].values
@@ -136,46 +153,30 @@ def compute_mse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     # TODO: Return Mean Squared Error = mean((y_pred - y_true) ** 2)
     raise NotImplementedError("Implement MSE calculation")
 
-def gradient_descent(
-    x: np.ndarray, y: np.ndarray, lr: float = 0.01, epochs: int = 500
-):
+def gradient_descent(x: np.ndarray, y: np.ndarray, lr: float = 0.01, epochs: int = 500):
     w, b = 0.0, 0.0
     n = len(x)
-    history = []
-
     for epoch in range(epochs):
         y_pred = w * x + b
         # TODO: Compute gradients dw and db
-        dw = 0.0  # Replace with (2 / n) * np.sum((y_pred - y) * x)
-        db = 0.0  # Replace with (2 / n) * np.sum(y_pred - y)
-
-        # TODO: Update parameters w and b using learning rate lr
+        dw = (2 / n) * np.sum((y_pred - y) * x)
+        db = (2 / n) * np.sum(y_pred - y)
         w = w - lr * dw
         b = b - lr * db
+    return w, b
 
-        if epoch % 50 == 0:
-            history.append((epoch, compute_mse(y, y_pred)))
+w_gd, b_gd = gradient_descent(X_train, y_train, lr=0.01, epochs=1000)
+print(f"[NumPy GD] w = {w_gd:.4f}, b = {b_gd:.4f}, Test MSE = {compute_mse(y_test, w_gd * X_test + b_gd):.4f}")
 
-    return w, b, history
-
-# 2. Run custom Gradient Descent
-w_gd, b_gd, loss_log = gradient_descent(X_train, y_train, lr=0.01, epochs=1000)
-test_mse_gd = compute_mse(y_test, w_gd * X_test + b_gd)
-print(f"[NumPy GD] w = {w_gd:.4f}, b = {b_gd:.4f}, Test MSE = {test_mse_gd:.4f}")
-
-# 3. Benchmark against Scikit-Learn LinearRegression
-sk_model = LinearRegression()
-sk_model.fit(X_train.reshape(-1, 1), y_train)
+sk_model = LinearRegression().fit(X_train.reshape(-1, 1), y_train)
 sk_preds = sk_model.predict(X_test.reshape(-1, 1))
-print(
-    f"[Sklearn ] w = {sk_model.coef_[0]:.4f}, b = {sk_model.intercept_:.4f}, "
-    f"Test MSE = {mean_squared_error(y_test, sk_preds):.4f}"
-)
+print(f"[Sklearn ] w = {sk_model.coef_[0]:.4f}, b = {sk_model.intercept_:.4f}, Test MSE = {mean_squared_error(y_test, sk_preds):.4f}")
 `,
   },
   {
     id: 'logistic-regression',
-    stageRef: 'Stage 05',
+    stageRef: 'Chapter 07',
+    chapterId: 7,
     title: 'Lab 02: Logistic Regression & Sigmoid Boundary',
     algorithm: 'Logistic Regression',
     csvFilename: 'exam_pass.csv',
@@ -214,29 +215,84 @@ def binary_cross_entropy(y_true: np.ndarray, probs: np.ndarray) -> float:
     # TODO: Return -np.mean(y_true * np.log(p) + (1 - y_true) * np.log(1 - p))
     raise NotImplementedError("Implement Binary Cross-Entropy loss")
 
-# Fit baseline Logistic Regression
-clf = LogisticRegression()
-clf.fit(X, y)
+clf = LogisticRegression().fit(X, y)
 probs = clf.predict_proba(X)[:, 1]
-
-print(f"Learned Weights: {clf.coef_[0]}, Intercept: {clf.intercept_[0]:.4f}")
 print(f"BCE Loss: {binary_cross_entropy(y, probs):.4f}")
 
-# TODO: Experiment with thresholds 0.3, 0.5, and 0.7
 for threshold in [0.3, 0.5, 0.7]:
     preds = (probs >= threshold).astype(int)
-    cm = confusion_matrix(y, preds)
-    print(f"\\nThreshold = {threshold} -> Confusion Matrix:\\n{cm}")
+    print(f"\\nThreshold = {threshold}\\n", confusion_matrix(y, preds))
     print(classification_report(y, preds, zero_division=0))
 `,
   },
   {
+    id: 'svm-pca',
+    stageRef: 'Chapters 08 & 13',
+    chapterId: 8,
+    title: 'Lab 03: Support Vector Machines (SVM), Scaling & PCA',
+    algorithm: 'SVM + PCA',
+    csvFilename: 'cell_biopsy_svm.csv',
+    pyFilename: 'lab03_svm_and_pca.py',
+    recordCountLabel: '20 records · 3 numeric features · Binary class',
+    taskSummary:
+      'Standardize biopsy measurements with StandardScaler, compare Linear vs. RBF Kernel SVMs across C values, inspect Support Vectors, and compress features to 2D via PCA.',
+    learningObjectives: [
+      'Fit StandardScaler strictly on X_train before transforming X_test (avoid data leakage).',
+      'Train Linear and RBF SVC models and count support vectors via clf.n_support_.',
+      'Project the standardized features with PCA(n_components=2) and inspect explained_variance_ratio_.',
+    ],
+    columns: ['Mean_Radius', 'Mean_Texture', 'Concavity', 'Malignant'],
+    rows: TUMOR_SVM_ROWS,
+    colabUrl: 'https://colab.research.google.com/#create=true',
+    starterCode: `"""
+Lab 03: Support Vector Machines (SVM), Standardization & PCA
+Dataset: cell_biopsy_svm.csv
+"""
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.decomposition import PCA
+
+df = pd.read_csv("cell_biopsy_svm.csv")
+X = df[["Mean_Radius", "Mean_Texture", "Concavity"]].values
+y = df["Malignant"].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+
+# 1. Fit StandardScaler strictly on X_train
+scaler = StandardScaler()
+X_train_s = scaler.fit_transform(X_train)
+X_test_s = scaler.transform(X_test)
+
+# 2. Compare Linear vs. RBF Kernel SVM across soft-margin C values
+for kernel in ["linear", "rbf"]:
+    for c_val in [0.2, 1.0, 10.0]:
+        # TODO: Initialize and fit SVC(kernel=kernel, C=c_val)
+        clf = SVC(kernel=kernel, C=c_val)
+        clf.fit(X_train_s, y_train)
+        print(
+            f"kernel={kernel:6s} C={c_val:4.1f} | "
+            f"Support Vectors={sum(clf.n_support_):2d} | "
+            f"Test Acc={clf.score(X_test_s, y_test):.2%}"
+        )
+
+# 3. Dimensionality Reduction via PCA
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_train_s)
+print("\\nPCA Explained Variance Ratio:", pca.explained_variance_ratio_.round(4))
+`,
+  },
+  {
     id: 'knn',
-    stageRef: 'Stage 06',
-    title: 'Lab 03: K-Nearest Neighbors & Overfitting Curve',
+    stageRef: 'Chapter 09',
+    chapterId: 9,
+    title: 'Lab 04: K-Nearest Neighbors & Overfitting Curve',
     algorithm: 'K-Nearest Neighbors',
     csvFilename: 'iris.csv',
-    pyFilename: 'lab03_knn_iris.py',
+    pyFilename: 'lab04_knn_iris.py',
     recordCountLabel: '30 records · 4 features · 3 flower species',
     taskSummary:
       'Code Euclidean distance and majority voting from scratch on iris.csv, then compare Train vs. Test accuracy across k = 1, 3, 5, 9 to observe the bias-variance trade-off.',
@@ -245,17 +301,11 @@ for threshold in [0.3, 0.5, 0.7]:
       'Implement majority-vote prediction among the k nearest neighbors.',
       'Compare Train vs. Test accuracy for k = 1, 3, 5, and 9.',
     ],
-    columns: [
-      'Sepal_Length',
-      'Sepal_Width',
-      'Petal_Length',
-      'Petal_Width',
-      'Species',
-    ],
+    columns: ['Sepal_Length', 'Sepal_Width', 'Petal_Length', 'Petal_Width', 'Species'],
     rows: IRIS_ROWS,
     colabUrl: 'https://colab.research.google.com/#create=true',
     starterCode: `"""
-Lab 03: K-Nearest Neighbors — Euclidean Distance & Majority Voting
+Lab 04: K-Nearest Neighbors — Euclidean Distance & Majority Voting
 Dataset: iris.csv
 """
 from collections import Counter
@@ -277,48 +327,44 @@ def euclidean_distance(a: np.ndarray, b: np.ndarray) -> float:
     raise NotImplementedError("Implement Euclidean distance")
 
 def knn_predict_one(X_tr, y_tr, x_query, k: int):
-    # TODO: Compute distances from x_query to every row in X_tr
     distances = [euclidean_distance(x_query, row) for row in X_tr]
-    # TODO: Select indices of the k smallest distances and return majority class
     nearest_idx = np.argsort(distances)[:k]
-    votes = Counter(y_tr[nearest_idx])
-    return votes.most_common(1)[0][0]
+    return Counter(y_tr[nearest_idx]).most_common(1)[0][0]
 
 for k in [1, 3, 5, 9]:
     preds = [knn_predict_one(X_train, y_train, xq, k) for xq in X_test]
     test_acc = np.mean(np.array(preds) == y_test)
     sk = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)
-    print(
-        f"k = {k:2d} | Custom Test Acc = {test_acc:.2%} "
-        f"| Sklearn Train Acc = {sk.score(X_train, y_train):.2%}"
-    )
+    print(f"k = {k:2d} | Custom Test Acc = {test_acc:.2%} | Sklearn Train Acc = {sk.score(X_train, y_train):.2%}")
 `,
   },
   {
     id: 'decision-trees',
-    stageRef: 'Stage 06',
-    title: 'Lab 04: Decision Trees, Entropy & Information Gain',
-    algorithm: 'Decision Trees',
+    stageRef: 'Chapters 09 & 11',
+    chapterId: 11,
+    title: 'Lab 05: Decision Trees, Entropy & Random Forests',
+    algorithm: 'Trees & Ensembles',
     csvFilename: 'weather_nominal.csv',
-    pyFilename: 'lab04_decision_tree_entropy.py',
+    pyFilename: 'lab05_trees_and_forest.py',
     recordCountLabel: '14 records · Classic Play Tennis dataset',
     taskSummary:
-      'Compute Shannon Entropy and Information Gain for Outlook, Temperature, Humidity, and Wind to select the optimal root split by hand and verify with Scikit-learn.',
+      'Compute Shannon Entropy and Information Gain by hand on weather_nominal.csv, then compare a single DecisionTreeClassifier against a RandomForestClassifier ensemble.',
     learningObjectives: [
       'Write a clean entropy(labels) function using base-2 logarithms.',
-      'Calculate Information Gain for each categorical feature in weather_nominal.csv.',
-      'Confirm which feature wins the root split and inspect max_depth pruning.',
+      'Calculate Information Gain for Outlook, Temperature, Humidity, and Wind.',
+      'Compare single-tree variance against RandomForestClassifier ensemble stability.',
     ],
     columns: ['Outlook', 'Temperature', 'Humidity', 'Wind', 'Play_Tennis'],
     rows: WEATHER_ROWS,
     colabUrl: 'https://colab.research.google.com/#create=true',
     starterCode: `"""
-Lab 04: Decision Trees — Entropy & Information Gain (Play Tennis)
-Dataset: weather_nominal.csv (14 classic records)
+Lab 05: Decision Trees & Random Forests (Play Tennis)
+Dataset: weather_nominal.csv
 """
 import numpy as np
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier, export_text
+from sklearn.ensemble import RandomForestClassifier
 
 df = pd.read_csv("weather_nominal.csv")
 target_col = "Play_Tennis"
@@ -330,33 +376,28 @@ def entropy(series: pd.Series) -> float:
 
 def information_gain(data: pd.DataFrame, feature: str, target: str) -> float:
     base_h = entropy(data[target])
-    weighted_h = 0.0
-    for val, subset in data.groupby(feature):
-        # TODO: Accumulate (len(subset) / len(data)) * entropy(subset[target])
-        weighted_h += (len(subset) / len(data)) * entropy(subset[target])
+    weighted_h = sum((len(sub) / len(data)) * entropy(sub[target]) for _, sub in data.groupby(feature))
     return base_h - weighted_h
 
-print(f"Root Entropy H(Play_Tennis): {entropy(df[target_col]):.4f}\\n")
 for feat in ["Outlook", "Temperature", "Humidity", "Wind"]:
-    ig = information_gain(df, feat, target_col)
-    print(f"Information Gain ({feat:11s}): {ig:.4f}")
+    print(f"Information Gain ({feat:11s}): {information_gain(df, feat, target_col):.4f}")
 
-# Verify with Scikit-Learn DecisionTreeClassifier (one-hot encoded)
 X_enc = pd.get_dummies(df.drop(columns=[target_col]))
 y_bin = (df[target_col] == "Yes").astype(int)
-tree = DecisionTreeClassifier(criterion="entropy", max_depth=3, random_state=42)
-tree.fit(X_enc, y_bin)
-print("\\nLearned Sklearn Tree Rules:")
+tree = DecisionTreeClassifier(criterion="entropy", max_depth=3, random_state=42).fit(X_enc, y_bin)
+forest = RandomForestClassifier(n_estimators=25, random_state=42).fit(X_enc, y_bin)
+print("\\nSingle Tree Acc:", tree.score(X_enc, y_bin), "| Random Forest Acc:", forest.score(X_enc, y_bin))
 print(export_text(tree, feature_names=list(X_enc.columns)))
 `,
   },
   {
     id: 'naive-bayes',
-    stageRef: 'Stage 07',
-    title: 'Lab 05: Naive Bayes Spam Filter & Laplace Smoothing',
+    stageRef: 'Chapter 10',
+    chapterId: 10,
+    title: 'Lab 06: Naive Bayes Spam Filter & Laplace Smoothing',
     algorithm: 'Naive Bayes',
     csvFilename: 'sms_spam_sample.csv',
-    pyFilename: 'lab05_naive_bayes_spam.py',
+    pyFilename: 'lab06_naive_bayes_spam.py',
     recordCountLabel: '20 records · Labeled SMS Spam/Ham corpus',
     taskSummary:
       'Build a word-frequency dictionary from sms_spam_sample.csv, calculate priors and likelihoods, observe zero-frequency failure on an unseen word, and apply Laplace (+1) smoothing.',
@@ -369,7 +410,7 @@ print(export_text(tree, feature_names=list(X_enc.columns)))
     rows: SMS_SPAM_ROWS,
     colabUrl: 'https://colab.research.google.com/#create=true',
     starterCode: `"""
-Lab 05: Multinomial Naive Bayes — Spam Filter & Laplace Smoothing
+Lab 06: Multinomial Naive Bayes — Spam Filter & Laplace Smoothing
 Dataset: sms_spam_sample.csv
 """
 from collections import Counter
@@ -381,36 +422,21 @@ def tokenize(text: str):
     cleaned = "".join(ch.lower() if ch.isalpha() or ch.isspace() else " " for ch in text)
     return [w for w in cleaned.split() if len(w) > 1]
 
-# 1. Build class word frequency dictionaries
-spam_words = Counter()
-ham_words = Counter()
+spam_words, ham_words = Counter(), Counter()
 for _, row in df.iterrows():
-    tokens = tokenize(row["Message"])
-    if row["Label"] == "spam":
-        spam_words.update(tokens)
-    else:
-        ham_words.update(tokens)
+    (spam_words if row["Label"] == "spam" else ham_words).update(tokenize(row["Message"]))
 
 vocab = set(spam_words.keys()) | set(ham_words.keys())
 p_spam = (df["Label"] == "spam").mean()
 p_ham = (df["Label"] == "ham").mean()
 
 def predict_message(text: str, alpha: float = 1.0):
-    tokens = tokenize(text)
-    total_spam = sum(spam_words.values())
-    total_ham = sum(ham_words.values())
-    V = len(vocab)
-
-    score_spam = p_spam
-    score_ham = p_ham
-
-    for word in tokens:
+    total_spam, total_ham, V = sum(spam_words.values()), sum(ham_words.values()), len(vocab)
+    score_spam, score_ham = p_spam, p_ham
+    for word in tokenize(text):
         # TODO: Apply Laplace smoothing (count + alpha) / (total + alpha * V)
-        pw_spam = (spam_words[word] + alpha) / (total_spam + alpha * V)
-        pw_ham = (ham_words[word] + alpha) / (total_ham + alpha * V)
-        score_spam *= pw_spam
-        score_ham *= pw_ham
-
+        score_spam *= (spam_words[word] + alpha) / (total_spam + alpha * V)
+        score_ham *= (ham_words[word] + alpha) / (total_ham + alpha * V)
     total = score_spam + score_ham
     if total == 0:
         return {"P(Spam)": 0.0, "P(Ham)": 0.0, "note": "ZERO-FREQUENCY COLLAPSE!"}
@@ -419,6 +445,74 @@ def predict_message(text: str, alpha: float = 1.0):
 test_sms = "WINNER claim your FREE crypto prize"
 print("Without Smoothing (alpha=0):", predict_message(test_sms, alpha=0.0))
 print("With Laplace (+1) (alpha=1):", predict_message(test_sms, alpha=1.0))
+`,
+  },
+  {
+    id: 'neural-network-xor',
+    stageRef: 'Chapters 14 & 15',
+    chapterId: 14,
+    title: 'Lab 07: Multi-Layer Neural Network & Backpropagation (XOR)',
+    algorithm: 'Neural Network (MLP)',
+    csvFilename: 'xor_corners_nn.csv',
+    pyFilename: 'lab07_mlp_backprop.py',
+    recordCountLabel: '16 records · Non-Linear XOR Quadrants',
+    taskSummary:
+      'Implement forward propagation and chain-rule backpropagation for a 2-layer neural network in pure NumPy to solve the classic non-linear XOR problem.',
+    learningObjectives: [
+      'Implement ReLU and Sigmoid activation functions along with their exact derivatives.',
+      'Code one full Forward Pass and Chain-Rule Backward Pass updating W1, b1, W2, b2.',
+      'Verify why a single linear layer stalls near 50% while a 2-layer MLP reaches 100%.',
+    ],
+    columns: ['X1', 'X2', 'XOR_Label'],
+    rows: XOR_NN_ROWS,
+    colabUrl: 'https://colab.research.google.com/#create=true',
+    starterCode: `"""
+Lab 07: Multi-Layer Perceptron & Backpropagation from Scratch (NumPy)
+Dataset: xor_corners_nn.csv
+"""
+import numpy as np
+import pandas as pd
+
+df = pd.read_csv("xor_corners_nn.csv")
+X = df[["X1", "X2"]].values
+y = df["XOR_Label"].values.reshape(-1, 1)
+
+rng = np.random.default_rng(42)
+W1 = rng.normal(0, 1, (2, 4))
+b1 = np.zeros((1, 4))
+W2 = rng.normal(0, 1, (4, 1))
+b2 = np.zeros((1, 1))
+
+def relu(z): return np.maximum(0, z)
+def relu_grad(z): return (z > 0).astype(float)
+def sigmoid(z): return 1 / (1 + np.exp(-z))
+
+lr = 0.25
+for epoch in range(1, 1001):
+    # Forward Pass
+    Z1 = X @ W1 + b1
+    H1 = relu(Z1)
+    Z2 = H1 @ W2 + b2
+    y_hat = sigmoid(Z2)
+
+    # TODO: Compute Binary Cross-Entropy gradients via Chain Rule
+    m = len(X)
+    dZ2 = (y_hat - y) / m
+    dW2 = H1.T @ dZ2
+    db2 = np.sum(dZ2, axis=0, keepdims=True)
+
+    dH1 = dZ2 @ W2.T
+    dZ1 = dH1 * relu_grad(Z1)
+    dW1 = X.T @ dZ1
+    db1 = np.sum(dZ1, axis=0, keepdims=True)
+
+    # Update Weights
+    W1 -= lr * dW1; b1 -= lr * db1
+    W2 -= lr * dW2; b2 -= lr * db2
+
+    if epoch % 250 == 0:
+        acc = np.mean((y_hat >= 0.5) == y)
+        print(f"Epoch {epoch:4d} | Accuracy = {acc:.2%}")
 `,
   },
 ];

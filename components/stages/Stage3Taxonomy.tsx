@@ -107,7 +107,7 @@ export default function Stage3Taxonomy() {
 
   // Visual Proof automation: walk through all 3 modes & run K-Means steps
   useEffect(() => {
-    return registerProofHandler(3, () => {
+    return registerProofHandler(12, () => {
       clearTimers();
       setMode('regression');
       handleResetKMeans();

@@ -153,7 +153,7 @@ export default function Stage4LinearReg() {
 
   // Visual Proof from Teacher Drawer: Demonstrate high learning-rate divergence, then smooth convergence
   useEffect(() => {
-    return registerProofHandler(4, () => {
+    return registerProofHandler(5, () => {
       stopRun();
       if (proofTimeoutRef.current !== null) {
         window.clearTimeout(proofTimeoutRef.current);

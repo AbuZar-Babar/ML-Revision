@@ -1,3 +1,6 @@
+import { NEW_STAGE_PRIMERS } from '@/data/primersNew';
+import { EXTRA_STAGE_PRIMERS } from '@/data/primersExtra';
+
 export interface FormulaPart {
   text: string;
   symbolKey?: string;
@@ -52,7 +55,7 @@ export interface StageFormulaSummary {
   objective: string;
 }
 
-export const STAGE_PRIMERS: Record<number, StagePrimer> = {
+const BASE_STAGE_PRIMERS: Record<number, StagePrimer> = {
   1: {
     stageId: 1,
     intuition:
@@ -734,54 +737,144 @@ export const MATH_NOTATION_BASICS: NotationBasicItem[] = [
   },
 ];
 
+export const STAGE_PRIMERS: Record<number, StagePrimer> = {
+  1: BASE_STAGE_PRIMERS[1],
+  2: EXTRA_STAGE_PRIMERS[2],
+  3: { ...BASE_STAGE_PRIMERS[2], stageId: 3 },
+  4: { ...NEW_STAGE_PRIMERS[3], stageId: 4 },
+  5: { ...BASE_STAGE_PRIMERS[4], stageId: 5 },
+  6: { ...NEW_STAGE_PRIMERS[5], stageId: 6 },
+  7: { ...BASE_STAGE_PRIMERS[5], stageId: 7 },
+  8: { ...NEW_STAGE_PRIMERS[7], stageId: 8 },
+  9: { ...BASE_STAGE_PRIMERS[6], stageId: 9 },
+  10: { ...BASE_STAGE_PRIMERS[7], stageId: 10 },
+  11: { ...NEW_STAGE_PRIMERS[10], stageId: 11 },
+  12: { ...BASE_STAGE_PRIMERS[3], stageId: 12 },
+  13: { ...NEW_STAGE_PRIMERS[12], stageId: 13 },
+  14: { ...NEW_STAGE_PRIMERS[13], stageId: 14 },
+  15: { ...NEW_STAGE_PRIMERS[14], stageId: 15 },
+  16: EXTRA_STAGE_PRIMERS[16],
+  17: EXTRA_STAGE_PRIMERS[17],
+};
+
 export const ALL_STAGE_FORMULAS: StageFormulaSummary[] = [
   {
     stageId: 1,
-    stageLabel: 'Stage 01',
-    topic: 'Rule-Based vs. ML',
+    stageLabel: 'Chapter 01',
+    topic: 'What Is Machine Learning?',
     formula: 'z = w₁·x₁ + w₂·x₂ + b  (Predict Class 1 if z ≥ 0)',
-    objective: 'Learn boundary parameters from labeled examples instead of if/else rules',
+    objective: 'Learn boundary weights from examples instead of rigid if/else rules',
   },
   {
     stageId: 2,
-    stageLabel: 'Stage 02',
-    topic: 'The Training Loop',
-    formula: 'ŷ = w·x + b   |   MSE = (1/N) Σ (ŷᵢ − yᵢ)²',
-    objective: 'Minimize average squared vertical residuals',
+    stageLabel: 'Chapter 02',
+    topic: 'Supervised, Unsupervised & RL',
+    formula: 'Q(s,a) ← Q(s,a) + α [ r + γ max Q(s′,a′) − Q(s,a) ]',
+    objective: 'Compare labels (x→y), structure (x), and reward-driven Q-Learning policies',
   },
   {
     stageId: 3,
-    stageLabel: 'Stage 03',
-    topic: 'ML Taxonomy & K-Means',
-    formula: 'μ_c = (1/|C|) Σ_{x∈C} x   (min Σ ‖xᵢ − μ_c‖²)',
-    objective: 'Predict continuous ℝ, discrete class {0,1}, or unlabeled centroids',
+    stageLabel: 'Chapter 03',
+    topic: 'The Training Loop & Gradient Descent',
+    formula: 'ŷ = w·x + b   |   MSE = (1/N) Σ (ŷᵢ − yᵢ)²',
+    objective: 'Minimize average squared vertical residuals iteratively',
   },
   {
     stageId: 4,
-    stageLabel: 'Stage 04',
-    topic: 'Linear Regression & GD',
-    formula: 'w_new = w_old − α · (2/N) Σ (w·xᵢ + b − yᵢ)·xᵢ',
-    objective: 'Walk down convex MSE bowl without α divergence; monitor Test MSE',
+    stageLabel: 'Chapter 04',
+    topic: 'Data Preprocessing & Feature Scaling',
+    formula: 'x_std = (x − μ) / σ   |   x_norm = (x − x_min) / (x_max − x_min)',
+    objective: 'Align mixed feature units before optimization, SVM, KNN, or PCA',
   },
   {
     stageId: 5,
-    stageLabel: 'Stage 05',
-    topic: 'Logistic Regression',
-    formula: 'S(z) = 1 / (1 + e⁻ᶻ)   |   BCE = −[y log p + (1−y) log(1−p)]',
-    objective: 'Squash linear scores into [0, 1] probabilities resistant to outliers',
+    stageLabel: 'Chapter 05',
+    topic: 'Linear Regression & OLS',
+    formula: 'w_new = w_old − α · (2/N) Σ (w·xᵢ + b − yᵢ)·xᵢ',
+    objective: 'Walk down the convex MSE bowl safely; monitor Train vs. Test MSE',
   },
   {
     stageId: 6,
-    stageLabel: 'Stage 06',
-    topic: 'KNN & Decision Trees',
-    formula: 'd = √((x_q−xᵢ)²+(y_q−yᵢ)²)   |   H(S) = −Σ p_c log₂ p_c',
-    objective: 'Capture non-linear boundaries while preventing k=1 / deep-tree overfitting',
+    stageLabel: 'Chapter 06',
+    topic: 'Bias–Variance & Regularization',
+    formula: 'L_Ridge = MSE + λ Σ wⱼ²   |   L_Lasso = MSE + λ Σ |wⱼ|',
+    objective: 'Shrink oversized weights to prevent high-variance overfitting',
   },
   {
     stageId: 7,
-    stageLabel: 'Stage 07',
-    topic: 'Naive Bayes & Laplace',
+    stageLabel: 'Chapter 07',
+    topic: 'Logistic Regression & Thresholds',
+    formula: 'σ(z) = 1 / (1 + e⁻ᶻ)   |   BCE = −[y log p + (1−y) log(1−p)]',
+    objective: 'Map linear scores into [0, 1] probabilities resistant to outliers',
+  },
+  {
+    stageId: 8,
+    stageLabel: 'Chapter 08',
+    topic: 'Support Vector Machines (SVM) & Kernels',
+    formula: 'min ½‖w‖² + C Σ ξᵢ   |   K_RBF(x,x′) = exp(−γ‖x − x′‖²)',
+    objective: 'Maximize separating margin 2/‖w‖ via Support Vectors and Kernel Trick',
+  },
+  {
+    stageId: 9,
+    stageLabel: 'Chapter 09',
+    topic: 'KNN & Decision Trees',
+    formula: 'd = √((x_q−xᵢ)²+(y_q−yᵢ)²)   |   H(S) = −Σ p_c log₂ p_c',
+    objective: 'Learn local non-linear boundaries while preventing k=1 / deep-tree overfitting',
+  },
+  {
+    stageId: 10,
+    stageLabel: 'Chapter 10',
+    topic: 'Naive Bayes & Laplace Smoothing',
     formula: 'P(C|W) ∝ P(C) ∏ [(count(wᵢ,C) + α) / (N_C + α|V|)]',
     objective: 'Multiply independent word likelihoods; α = +1 prevents zero collapse',
+  },
+  {
+    stageId: 11,
+    stageLabel: 'Chapter 11',
+    topic: 'Ensemble Learning (Forests & Boosting)',
+    formula: 'ŷ_RF = (1/M) Σ h_m(x)   |   F_Boost(x) = sign(Σ α_m h_m(x))',
+    objective: 'Average parallel trees to slash variance; boost sequential stumps to slash bias',
+  },
+  {
+    stageId: 12,
+    stageLabel: 'Chapter 12',
+    topic: 'Unsupervised Learning & K-Means',
+    formula: 'μ_c = (1/|C|) Σ_{x∈C} x   |   min Σ ‖xᵢ − μ_c‖²',
+    objective: 'Discover hidden clusters without labels by minimizing centroid inertia',
+  },
+  {
+    stageId: 13,
+    stageLabel: 'Chapter 13',
+    topic: 'Dimensionality Reduction & PCA',
+    formula: 'Σ v_k = λ_k v_k   |   EVR₁ = λ₁ / (λ₁ + λ₂ + ... + λ_d)',
+    objective: 'Project correlated features onto top eigenvectors maximizing retained variance',
+  },
+  {
+    stageId: 14,
+    stageLabel: 'Chapter 14',
+    topic: 'Perceptrons & Multi-Layer Neural Nets',
+    formula: 'h = ReLU(W₁x + b₁) = max(0, W₁x + b₁)   |   ŷ = σ(W₂h + b₂)',
+    objective: 'Stack non-linear hidden activations to bend space and solve XOR',
+  },
+  {
+    stageId: 15,
+    stageLabel: 'Chapter 15',
+    topic: 'Backpropagation & Chain Rule',
+    formula: '∂L/∂w₁ = (∂L/∂ŷ) · (∂ŷ/∂h) · (∂h/∂z₁) · x',
+    objective: 'Propagate exact error gradients backward to train deep multi-layer weights',
+  },
+  {
+    stageId: 16,
+    stageLabel: 'Chapter 16',
+    topic: 'Convolutional Neural Networks (CNNs)',
+    formula: 'F(i,j) = ReLU( ΣΣ I(i+m, j+n) · K(m,n) )',
+    objective: 'Share 3×3 spatial filters across images and downsample with Max Pooling',
+  },
+  {
+    stageId: 17,
+    stageLabel: 'Chapter 17',
+    topic: 'Attention & Intro to Transformers',
+    formula: 'Attention(Q,K,V) = softmax( Q·Kᵀ / √d_k ) · V',
+    objective: 'Weigh every token against every other token in parallel to resolve context',
   },
 ];
